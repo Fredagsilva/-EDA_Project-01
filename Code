@@ -1,0 +1,110 @@
+install.packages("cowplot")
+library(tidyverse)
+library(hms)
+library(cowplot)
+#Definy the main directory
+setwd("C:/Users/Fred/Desktop/coursera/exploratory01")
+#Download file from 
+download.file(url = "https://d396qusza40orc.cloudfront.net/exdata%2Fdata%2Fhousehold_power_consumption.zip",destfile = "power.zip")
+#Descompress the file
+unzip(zipfile = "power.zip")
+#Read the file - Just the date: 01-02-2007 to 02-02-2007
+powertable<-read.table(file = "household_power_consumption.txt", header = FALSE, sep = ";",dec = ".", skip = grep(pattern = "31/1/2007;23:59:00", readLines("household_power_consumption.txt", skip=0)),nrows=2880)
+# extract the header from the table
+theheader<-read.table(file = "household_power_consumption.txt", header = TRUE, sep = ";", nrows = 2)
+# Put a header on the table
+names(powertable)<-names(theheader)
+#Convert a column to data type 
+powertable$Date<-as.Date(powertable$Date, "%d/%m/%Y")
+#merge column Date and TIME
+powertable$Date<-paste(powertable$Date, powertable$Time)
+#convert a column to "%Y-%m-%d %H:%M:%S" type
+powertable$Date<-strptime(powertable$Date, "%Y-%m-%d %H:%M:%S" )
+#first graph
+#save the plot 1 to plot1.png
+png(filename="plot1.png", height=480, width=480, bg="white")
+#plot the histogram
+hist(powertable$Global_active_power, xlab = "Global active power (kilowatts)", ylab="Frequency",col = "Red", main = "Global Active Power")
+# Deactive the graphic module
+dev.off()
+#second Graph
+#save the plot 2 to plot2.png
+png(filename="plot2.png", height=480, width=480, bg="white")
+#plot the graph
+plot2<-ggplot(powertable, aes(x = powertable$Date, y= powertable$Global_active_power)) + geom_line() 
+#changing the background of the plot
+plot2<-plot2+theme_bw()
+#changing the axis labels and removing the grids
+plot2<-plot2+theme(axis.line.x = element_line(colour = "black")
+                   ,axis.line.y = element_blank()
+                   ,panel.grid.major = element_line("transparent")
+                   ,panel.grid.minor = element_line("transparent")
+                   ,axis.title.x = element_blank()
+                   ) + ylab("Global Active Power(kilowatts)")
+#changing the x ticks
+plot2<-plot2 +scale_x_datetime(date_breaks = "1 day", date_labels = c("Sat", "Thu", "Fri"))
+#showing the plot
+(plot2)
+dev.off()
+#Third graph
+#save the plot 3 to plot3.png
+
+png(filename="plot3.png", height=480, width=480, bg="white")
+#ploting the first line
+plot3<-ggplot(powertable, aes(x = powertable$Date, y= powertable$Sub_metering_1)) + geom_line(aes(color="Sub_metering_1"))
+#ploting the 2nd line
+plot3<- plot3+ geom_line(aes(y=powertable$Sub_metering_2, color="Sub_metering_2"))
+#ploting the 3rd line
+plot3<- plot3+ geom_line(aes(y=powertable$Sub_metering_3, color="Sub_metering_3"))
+#changing x ticks
+plot3<-plot3 +scale_x_datetime(date_breaks = "1 day", date_labels = c("Sat", "Thu", "Fri"))
+#changing color of lines
+plot3<-plot3 + scale_color_manual(name=element_blank(), labels= c("Sub_metering_1", "Sub_metering_2", "Sub_metering_3"), values= c("Sub_metering_1" = "Black", "Sub_metering_2" ="Red", "Sub_metering_3"= "Blue"))
+#removing background
+plot3<-plot3+theme_bw()
+# changing labels, changing legend position, changing grids
+plot3<-plot3+ ylab("Energy Sub Metering") +theme(
+      axis.title.x = element_blank(),
+      legend.direction = "vertical",
+      legend.position = c(0.933,0.92),
+      legend.background = element_blank(),
+      legend.key = element_blank(),
+      legend.box.background = element_rect(),
+      legend.box.margin = margin(2,2,2,2)
+      ,axis.line = element_line(colour = "black")
+      ,panel.grid.major = element_blank()
+      ,panel.grid.minor = element_blank()
+      ,panel.border = element_rect(colour = "grey", size=1)
+      ,axis.line.x = element_blank()
+)
+#showing the plot
+(plot3)
+dev.off()
+#plot4
+#creating a new plot with same aes that above
+plot4_2<-ggplot(powertable, aes(x = powertable$Date, y= powertable$Voltage)) + geom_line()
+plot4_2<-plot4_2+scale_x_datetime(date_breaks = "1 day", date_labels = c("Sat", "Thu", "Fri"))
+plot4_2<-plot4_2+scale_y_continuous(breaks=seq(234,246,by=4))
+plot4_2<-plot4_2+theme_bw()
+plot4_2<-plot4_2+theme(axis.line.x = element_line(colour = "black")
+                       ,axis.line.y = element_line(colour = "black")
+                       ,panel.grid.major = element_line("transparent")
+                       ,panel.grid.minor = element_line("transparent")
+                       ,panel.border = element_rect(colour = "grey", size=1) 
+                       ) + ylab("Voltage") + xlab("datetime")
+(plot4_2)
+#creating a new plot with same aes that above
+plot4_3<-ggplot(powertable, aes(x = powertable$Date, y= powertable$Global_reactive_power)) + geom_line()
+plot4_3<-plot4_3+scale_x_datetime(date_breaks = "1 day", date_labels = c("Sat", "Thu", "Fri"))
+plot4_3<-plot4_3+theme_bw()
+plot4_3<-plot4_3+theme(axis.line.x = element_line(colour = "black")
+                       ,axis.line.y = element_line(colour = "black")
+                       ,panel.grid.major = element_line("transparent")
+                       ,panel.grid.minor = element_line("transparent")
+                       ,panel.border = element_rect(colour = "grey", size=1) 
+                        ) + ylab("Global_reactive_power") + xlab("datetime")
+(plot4_3)
+#ploting that four plots on the same page
+png(filename="plot4.png", height=480, width=480, bg="white")
+(plot_grid(plot2,plot3,plot4_2,plot4_3,ncol=2))
+dev.off()
