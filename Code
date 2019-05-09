@@ -23,7 +23,7 @@ powertable$Date<-strptime(powertable$Date, "%Y-%m-%d %H:%M:%S" )
 #save the plot 1 to plot1.png
 png(filename="plot1.png", height=480, width=480, bg="white")
 #plot the histogram
-hist(powertable$Global_active_power, xlab = "Global active power (kilowatts)", ylab="Frequency",col = "Red", main = "Global Active Power")
+plot1<-hist(powertable$Global_active_power, xlab = "Global active power (kilowatts)", ylab="Frequency",col = "Red", main = "Global Active Power")
 # Deactive the graphic module
 dev.off()
 #second Graph
@@ -65,7 +65,7 @@ plot3<-plot3+theme_bw()
 plot3<-plot3+ ylab("Energy Sub Metering") +theme(
       axis.title.x = element_blank(),
       legend.direction = "vertical",
-      legend.position = c(0.933,0.92),
+      legend.position = c(0.867,0.85),
       legend.background = element_blank(),
       legend.key = element_blank(),
       legend.box.background = element_rect(),
@@ -107,3 +107,4 @@ plot4_3<-plot4_3+theme(axis.line.x = element_line(colour = "black")
 png(filename="plot4.png", height=480, width=480, bg="white")
 (plot_grid(plot2,plot3,plot4_2,plot4_3,ncol=2))
 dev.off()
+
